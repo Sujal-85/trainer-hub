@@ -31,7 +31,7 @@ const TrainerTypeSelector = ({ onSelect }: TrainerTypeSelectorProps) => {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 md:p-8">
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 bg-background/50">
       {/* Background decoration */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
@@ -54,16 +54,16 @@ const TrainerTypeSelector = ({ onSelect }: TrainerTypeSelectorProps) => {
           >
             Join Our Training Network
           </motion.span>
-          
+
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4"
+            className="text-3xl xs:text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground mb-3 md:mb-4 tracking-tight"
           >
             Become a <span className="text-primary">Trainer</span>
           </motion.h1>
-          
+
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -94,13 +94,13 @@ const TrainerTypeSelector = ({ onSelect }: TrainerTypeSelectorProps) => {
                 <div className="relative glass-card rounded-3xl p-8 md:p-10 h-full">
                   {/* Glow effect */}
                   <div className={`absolute inset-0 ${trainer.bgGlow} opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl`} />
-                  
+
                   {/* Content */}
                   <div className="relative z-10">
                     {/* Icon */}
                     <div className="mb-6">
-                      <motion.span 
-                        className="text-5xl md:text-6xl block"
+                      <motion.span
+                        className="text-4xl sm:text-5xl md:text-6xl block"
                         whileHover={{ scale: 1.1, rotate: [0, -10, 10, 0] }}
                         transition={{ duration: 0.3 }}
                       >
@@ -109,12 +109,12 @@ const TrainerTypeSelector = ({ onSelect }: TrainerTypeSelectorProps) => {
                     </div>
 
                     {/* Title */}
-                    <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3 group-hover:text-primary transition-colors">
+                    <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
                       {trainer.title}
                     </h2>
 
                     {/* Description */}
-                    <p className="text-muted-foreground mb-8 leading-relaxed">
+                    <p className="text-sm sm:text-base text-muted-foreground mb-6 md:mb-8 leading-relaxed line-clamp-2 md:line-clamp-none">
                       {trainer.description}
                     </p>
 

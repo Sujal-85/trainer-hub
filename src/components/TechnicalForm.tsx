@@ -1,12 +1,14 @@
 import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ArrowRight, User, Phone, Mail, MapPin, Building } from 'lucide-react';
+import { ArrowLeft, ArrowRight, User, Phone, Mail, MapPin, Building, Loader2, Sparkles } from 'lucide-react';
 import StepperProgressBar from './StepperProgressBar';
 import AnimatedFormCard from './AnimatedFormCard';
 import InputFieldWithIcon from './InputFieldWithIcon';
 import SelectableCard from './SelectableCard';
 import DragDropFileUploader from './DragDropFileUploader';
 import MultiSelectTagInput from './MultiSelectTagInput';
+import { registerTrainer, parseResume } from '@/lib/api';
+import { toast } from 'sonner';
 import {
   TechnicalFormData,
   TRAVEL_OPTIONS,
@@ -50,6 +52,8 @@ const TechnicalForm = ({ onBack, onComplete }: TechnicalFormProps) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [direction, setDirection] = useState<'forward' | 'backward'>('forward');
   const [formData, setFormData] = useState<TechnicalFormData>(initialFormData);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isParsing, setIsParsing] = useState(false);
 
   const totalSteps = 6;
 
@@ -70,12 +74,24 @@ const TechnicalForm = ({ onBack, onComplete }: TechnicalFormProps) => {
     });
   }, []);
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentStep < totalSteps) {
       setDirection('forward');
       setCurrentStep(prev => prev + 1);
     } else {
-      onComplete();
+      setIsSubmitting(true);
+      try {
+        await registerTrainer('technical', formData, {
+          resume: formData.resume || undefined,
+          profilePhoto: formData.profilePhoto || undefined,
+        });
+        toast.success('Profile created successfully!');
+        onComplete();
+      } catch (error: any) {
+        toast.error(error.message || 'Something went wrong');
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -85,6 +101,26 @@ const TechnicalForm = ({ onBack, onComplete }: TechnicalFormProps) => {
       setCurrentStep(prev => prev - 1);
     } else {
       onBack();
+    }
+  };
+
+  const handleAiParse = async (file: File) => {
+    setIsParsing(true);
+    try {
+      const response = await parseResume(file);
+      const extracted = response.data;
+
+      setFormData(prev => ({
+        ...prev,
+        ...extracted,
+        resume: file // Keep the file too
+      }));
+      toast.success('Form auto-filled successfully!');
+    } catch (error: any) {
+      toast.error('AI could not parse this file. Please fill manually.');
+      console.error(error);
+    } finally {
+      setIsParsing(false);
     }
   };
 
@@ -118,6 +154,38 @@ const TechnicalForm = ({ onBack, onComplete }: TechnicalFormProps) => {
             direction={direction}
           >
             <div className="space-y-5">
+              <div className="p-4 rounded-2xl bg-primary/5 border border-primary/20 mb-6">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <Sparkles className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-foreground">Magic Auto-fill</h4>
+                    <p className="text-xs text-muted-foreground">Upload your resume to fill the form instantly</p>
+                  </div>
+                </div>
+                <input
+                  type="file"
+                  id="ai-resume-upload-tech"
+                  className="hidden"
+                  accept=".pdf"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleAiParse(file);
+                  }}
+                />
+                <label
+                  htmlFor="ai-resume-upload-tech"
+                  className={`flex items-center justify-center w-full py-3 rounded-xl border-2 border-dashed border-primary/30 hover:border-primary/50 hover:bg-primary/10 transition-all cursor-pointer ${isParsing ? 'opacity-50 pointer-events-none' : ''}`}
+                >
+                  {isParsing ? (
+                    <Loader2 className="w-5 h-5 animate-spin text-primary" />
+                  ) : (
+                    <span className="text-sm font-medium text-primary">Upload Resume (PDF)</span>
+                  )}
+                </label>
+              </div>
+
               <InputFieldWithIcon
                 icon={User}
                 label="Full Name"
@@ -264,11 +332,10 @@ const TechnicalForm = ({ onBack, onComplete }: TechnicalFormProps) => {
                       key={option.id}
                       type="button"
                       onClick={() => updateField('trainingExperience', option.id)}
-                      className={`px-5 py-2.5 rounded-xl font-medium transition-all duration-200 ${
-                        formData.trainingExperience === option.id
-                          ? 'bg-primary text-primary-foreground shadow-lg'
-                          : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-                      }`}
+                      className={`px-5 py-2.5 rounded-xl font-medium transition-all duration-200 ${formData.trainingExperience === option.id
+                        ? 'bg-primary text-primary-foreground shadow-lg'
+                        : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+                        }`}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                     >
@@ -286,11 +353,10 @@ const TechnicalForm = ({ onBack, onComplete }: TechnicalFormProps) => {
                   <motion.button
                     type="button"
                     onClick={() => updateField('hasIndustryExperience', true)}
-                    className={`px-6 py-3 rounded-xl font-medium transition-all duration-200 ${
-                      formData.hasIndustryExperience
-                        ? 'bg-primary text-primary-foreground shadow-lg'
-                        : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-                    }`}
+                    className={`px-6 py-3 rounded-xl font-medium transition-all duration-200 ${formData.hasIndustryExperience
+                      ? 'bg-primary text-primary-foreground shadow-lg'
+                      : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+                      }`}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
@@ -302,11 +368,10 @@ const TechnicalForm = ({ onBack, onComplete }: TechnicalFormProps) => {
                       updateField('hasIndustryExperience', false);
                       updateField('industryDetails', '');
                     }}
-                    className={`px-6 py-3 rounded-xl font-medium transition-all duration-200 ${
-                      !formData.hasIndustryExperience
-                        ? 'bg-primary text-primary-foreground shadow-lg'
-                        : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-                    }`}
+                    className={`px-6 py-3 rounded-xl font-medium transition-all duration-200 ${!formData.hasIndustryExperience
+                      ? 'bg-primary text-primary-foreground shadow-lg'
+                      : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+                      }`}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
@@ -359,11 +424,10 @@ const TechnicalForm = ({ onBack, onComplete }: TechnicalFormProps) => {
                       key={lang.id}
                       type="button"
                       onClick={() => toggleArrayField('languages', lang.id)}
-                      className={`px-5 py-2.5 rounded-xl font-medium transition-all duration-200 ${
-                        formData.languages.includes(lang.id)
-                          ? 'bg-primary text-primary-foreground shadow-lg'
-                          : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-                      }`}
+                      className={`px-5 py-2.5 rounded-xl font-medium transition-all duration-200 ${formData.languages.includes(lang.id)
+                        ? 'bg-primary text-primary-foreground shadow-lg'
+                        : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+                        }`}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                     >
@@ -399,11 +463,10 @@ const TechnicalForm = ({ onBack, onComplete }: TechnicalFormProps) => {
                       key={option.id}
                       type="button"
                       onClick={() => updateField('availability', option.id)}
-                      className={`px-5 py-2.5 rounded-xl font-medium transition-all duration-200 ${
-                        formData.availability === option.id
-                          ? 'bg-primary text-primary-foreground shadow-lg'
-                          : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-                      }`}
+                      className={`px-5 py-2.5 rounded-xl font-medium transition-all duration-200 ${formData.availability === option.id
+                        ? 'bg-primary text-primary-foreground shadow-lg'
+                        : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+                        }`}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                     >
@@ -474,11 +537,10 @@ const TechnicalForm = ({ onBack, onComplete }: TechnicalFormProps) => {
                   <motion.button
                     type="button"
                     onClick={() => updateField('subscriptionConsent', !formData.subscriptionConsent)}
-                    className={`mt-0.5 w-6 h-6 rounded-md flex items-center justify-center transition-all ${
-                      formData.subscriptionConsent
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-card border-2 border-border'
-                    }`}
+                    className={`mt-0.5 w-6 h-6 rounded-md flex items-center justify-center transition-all ${formData.subscriptionConsent
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-card border-2 border-border'
+                      }`}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
@@ -566,11 +628,17 @@ const TechnicalForm = ({ onBack, onComplete }: TechnicalFormProps) => {
 
           <button
             onClick={handleNext}
-            disabled={!isStepValid()}
-            className="btn-primary flex items-center"
+            disabled={!isStepValid() || isSubmitting}
+            className="btn-primary flex items-center min-w-[140px] justify-center"
           >
-            {currentStep === totalSteps ? 'Create My Trainer Profile' : 'Next'}
-            {currentStep !== totalSteps && <ArrowRight className="w-4 h-4 ml-2" />}
+            {isSubmitting ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <>
+                {currentStep === totalSteps ? 'Create My Trainer Profile' : 'Next'}
+                {currentStep !== totalSteps && <ArrowRight className="w-4 h-4 ml-2" />}
+              </>
+            )}
           </button>
         </div>
       </div>

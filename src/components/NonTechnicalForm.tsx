@@ -1,11 +1,13 @@
 import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ArrowRight, User, Phone, Mail, MapPin, Building } from 'lucide-react';
+import { ArrowLeft, ArrowRight, User, Phone, Mail, MapPin, Building, Loader2, Sparkles } from 'lucide-react';
 import StepperProgressBar from './StepperProgressBar';
 import AnimatedFormCard from './AnimatedFormCard';
 import InputFieldWithIcon from './InputFieldWithIcon';
 import SelectableCard from './SelectableCard';
 import DragDropFileUploader from './DragDropFileUploader';
+import { registerTrainer, parseResume } from '@/lib/api';
+import { toast } from 'sonner';
 import {
   NonTechnicalFormData,
   TRAINING_AREAS,
@@ -48,6 +50,8 @@ const NonTechnicalForm = ({ onBack, onComplete }: NonTechnicalFormProps) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [direction, setDirection] = useState<'forward' | 'backward'>('forward');
   const [formData, setFormData] = useState<NonTechnicalFormData>(initialFormData);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isParsing, setIsParsing] = useState(false);
 
   const totalSteps = 6;
 
@@ -68,12 +72,24 @@ const NonTechnicalForm = ({ onBack, onComplete }: NonTechnicalFormProps) => {
     });
   }, []);
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentStep < totalSteps) {
       setDirection('forward');
       setCurrentStep(prev => prev + 1);
     } else {
-      onComplete();
+      setIsSubmitting(true);
+      try {
+        await registerTrainer('non-technical', formData, {
+          resume: formData.resume || undefined,
+          profilePhoto: formData.profilePhoto || undefined,
+        });
+        toast.success('Profile created successfully!');
+        onComplete();
+      } catch (error: any) {
+        toast.error(error.message || 'Something went wrong');
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -83,6 +99,26 @@ const NonTechnicalForm = ({ onBack, onComplete }: NonTechnicalFormProps) => {
       setCurrentStep(prev => prev - 1);
     } else {
       onBack();
+    }
+  };
+
+  const handleAiParse = async (file: File) => {
+    setIsParsing(true);
+    try {
+      const response = await parseResume(file);
+      const extracted = response.data;
+
+      setFormData(prev => ({
+        ...prev,
+        ...extracted,
+        resume: file // Keep the file too
+      }));
+      toast.success('Form auto-filled successfully!');
+    } catch (error: any) {
+      toast.error('AI could not parse this file. Please fill manually.');
+      console.error(error);
+    } finally {
+      setIsParsing(false);
     }
   };
 
@@ -116,6 +152,38 @@ const NonTechnicalForm = ({ onBack, onComplete }: NonTechnicalFormProps) => {
             direction={direction}
           >
             <div className="space-y-5">
+              <div className="p-4 rounded-2xl bg-primary/5 border border-primary/20 mb-6">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <Sparkles className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-foreground">Magic Auto-fill</h4>
+                    <p className="text-xs text-muted-foreground">Upload your resume to fill the form instantly</p>
+                  </div>
+                </div>
+                <input
+                  type="file"
+                  id="ai-resume-upload"
+                  className="hidden"
+                  accept=".pdf"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleAiParse(file);
+                  }}
+                />
+                <label
+                  htmlFor="ai-resume-upload"
+                  className={`flex items-center justify-center w-full py-3 rounded-xl border-2 border-dashed border-primary/30 hover:border-primary/50 hover:bg-primary/10 transition-all cursor-pointer ${isParsing ? 'opacity-50 pointer-events-none' : ''}`}
+                >
+                  {isParsing ? (
+                    <Loader2 className="w-5 h-5 animate-spin text-primary" />
+                  ) : (
+                    <span className="text-sm font-medium text-primary">Upload Resume (PDF)</span>
+                  )}
+                </label>
+              </div>
+
               <InputFieldWithIcon
                 icon={User}
                 label="Full Name"
@@ -250,11 +318,10 @@ const NonTechnicalForm = ({ onBack, onComplete }: NonTechnicalFormProps) => {
                       key={lang.id}
                       type="button"
                       onClick={() => toggleArrayField('languages', lang.id)}
-                      className={`px-5 py-2.5 rounded-xl font-medium transition-all duration-200 ${
-                        formData.languages.includes(lang.id)
-                          ? 'bg-primary text-primary-foreground shadow-lg'
-                          : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-                      }`}
+                      className={`px-5 py-2.5 rounded-xl font-medium transition-all duration-200 ${formData.languages.includes(lang.id)
+                        ? 'bg-primary text-primary-foreground shadow-lg'
+                        : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+                        }`}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                     >
@@ -274,11 +341,10 @@ const NonTechnicalForm = ({ onBack, onComplete }: NonTechnicalFormProps) => {
                       key={option.id}
                       type="button"
                       onClick={() => updateField('availability', option.id)}
-                      className={`px-5 py-2.5 rounded-xl font-medium transition-all duration-200 ${
-                        formData.availability === option.id
-                          ? 'bg-primary text-primary-foreground shadow-lg'
-                          : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-                      }`}
+                      className={`px-5 py-2.5 rounded-xl font-medium transition-all duration-200 ${formData.availability === option.id
+                        ? 'bg-primary text-primary-foreground shadow-lg'
+                        : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+                        }`}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                     >
@@ -410,11 +476,10 @@ const NonTechnicalForm = ({ onBack, onComplete }: NonTechnicalFormProps) => {
                       key={option.id}
                       type="button"
                       onClick={() => updateField('programConsent', option.id)}
-                      className={`px-5 py-2.5 rounded-xl font-medium transition-all duration-200 ${
-                        formData.programConsent === option.id
-                          ? 'bg-primary text-primary-foreground shadow-lg'
-                          : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-                      }`}
+                      className={`px-5 py-2.5 rounded-xl font-medium transition-all duration-200 ${formData.programConsent === option.id
+                        ? 'bg-primary text-primary-foreground shadow-lg'
+                        : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+                        }`}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                     >
@@ -484,11 +549,17 @@ const NonTechnicalForm = ({ onBack, onComplete }: NonTechnicalFormProps) => {
 
           <button
             onClick={handleNext}
-            disabled={!isStepValid()}
-            className="btn-primary flex items-center"
+            disabled={!isStepValid() || isSubmitting}
+            className="btn-primary flex items-center min-w-[140px] justify-center"
           >
-            {currentStep === totalSteps ? 'Create My Trainer Profile' : 'Next'}
-            {currentStep !== totalSteps && <ArrowRight className="w-4 h-4 ml-2" />}
+            {isSubmitting ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <>
+                {currentStep === totalSteps ? 'Create My Trainer Profile' : 'Next'}
+                {currentStep !== totalSteps && <ArrowRight className="w-4 h-4 ml-2" />}
+              </>
+            )}
           </button>
         </div>
       </div>
