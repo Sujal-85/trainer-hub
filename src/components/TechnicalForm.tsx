@@ -52,16 +52,43 @@ const TechnicalForm = ({ onBack, onComplete }: TechnicalFormProps) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [direction, setDirection] = useState<'forward' | 'backward'>('forward');
   const [formData, setFormData] = useState<TechnicalFormData>(initialFormData);
+  const [errors, setErrors] = useState<Partial<Record<keyof TechnicalFormData, string>>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isParsing, setIsParsing] = useState(false);
 
   const totalSteps = 6;
+
+  const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const validatePhone = (phone: string) => /^\d{10}$/.test(phone.replace(/\D/g, ''));
+
+  const validateField = (field: keyof TechnicalFormData, value: any): string => {
+    switch (field) {
+      case 'email':
+        return value && !validateEmail(value) ? 'Invalid email format' : '';
+      case 'whatsappNumber':
+        return value && !validatePhone(value) ? 'Invalid phone number (10 digits required)' : '';
+      case 'fullName':
+        return !value ? 'Full name is required' : '';
+      case 'city':
+        return !value ? 'City is required' : '';
+      case 'state':
+        return !value ? 'State is required' : '';
+      case 'dailyFee':
+        return !value ? 'Daily fee is required' : '';
+      case 'shortBio':
+        return !value ? 'Short bio is required' : '';
+      default:
+        return '';
+    }
+  };
 
   const updateField = useCallback(<K extends keyof TechnicalFormData>(
     field: K,
     value: TechnicalFormData[K]
   ) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    const error = validateField(field, value);
+    setErrors(prev => ({ ...prev, [field]: error }));
   }, []);
 
   const toggleArrayField = useCallback((field: 'domainExpertise' | 'languages', value: string) => {
@@ -127,7 +154,16 @@ const TechnicalForm = ({ onBack, onComplete }: TechnicalFormProps) => {
   const isStepValid = (): boolean => {
     switch (currentStep) {
       case 1:
-        return !!(formData.fullName && formData.whatsappNumber && formData.email && formData.city && formData.state && formData.travelWillingness);
+        return !!(
+          formData.fullName &&
+          formData.whatsappNumber &&
+          formData.email &&
+          formData.city &&
+          formData.state &&
+          formData.travelWillingness &&
+          !errors.email &&
+          !errors.whatsappNumber
+        );
       case 2:
         return formData.technicalSkills.length > 0;
       case 3:
@@ -192,15 +228,17 @@ const TechnicalForm = ({ onBack, onComplete }: TechnicalFormProps) => {
                 placeholder="e.g., Rajesh Kumar"
                 value={formData.fullName}
                 onChange={(e) => updateField('fullName', e.target.value)}
+                error={errors.fullName}
               />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <InputFieldWithIcon
                   icon={Phone}
                   label="WhatsApp Number"
-                  placeholder="e.g., +91 98765 43210"
+                  placeholder="e.g., 9876543210"
                   type="tel"
                   value={formData.whatsappNumber}
                   onChange={(e) => updateField('whatsappNumber', e.target.value)}
+                  error={errors.whatsappNumber}
                 />
                 <InputFieldWithIcon
                   icon={Mail}
@@ -209,6 +247,7 @@ const TechnicalForm = ({ onBack, onComplete }: TechnicalFormProps) => {
                   type="email"
                   value={formData.email}
                   onChange={(e) => updateField('email', e.target.value)}
+                  error={errors.email}
                 />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -218,6 +257,7 @@ const TechnicalForm = ({ onBack, onComplete }: TechnicalFormProps) => {
                   placeholder="e.g., Bangalore"
                   value={formData.city}
                   onChange={(e) => updateField('city', e.target.value)}
+                  error={errors.city}
                 />
                 <InputFieldWithIcon
                   icon={Building}
@@ -225,6 +265,7 @@ const TechnicalForm = ({ onBack, onComplete }: TechnicalFormProps) => {
                   placeholder="e.g., Karnataka"
                   value={formData.state}
                   onChange={(e) => updateField('state', e.target.value)}
+                  error={errors.state}
                 />
               </div>
 
