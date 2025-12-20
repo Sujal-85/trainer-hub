@@ -1,4 +1,4 @@
-export const API_BASE_URL = 'http://localhost:4000/api';
+export const API_BASE_URL = 'https://trainer-hub-yvuj.onrender.com/api';
 
 export const registerTrainer = async (type: 'technical' | 'non-technical', data: any, files: { resume?: File; profilePhoto?: File }) => {
     const formData = new FormData();
