@@ -42,14 +42,14 @@ const AnimatedFormCard = ({
       transition={{ duration: 0.3, ease: 'easeInOut' }}
       className="w-full"
     >
-      <div className="glass-card rounded-3xl p-6 md:p-8 lg:p-10">
+      <div className="glass-card rounded-2xl md:rounded-3xl p-4 sm:p-6 md:p-8 lg:p-10">
         {/* Header */}
         <div className="mb-8">
           <motion.h2
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-2xl md:text-3xl font-bold text-foreground mb-2"
+            className="text-xl md:text-2xl lg:text-3xl font-bold text-foreground mb-1 md:mb-2 leading-tight"
           >
             {title}
           </motion.h2>
@@ -58,7 +58,7 @@ const AnimatedFormCard = ({
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15 }}
-              className="text-muted-foreground"
+              className="text-sm md:text-base text-muted-foreground leading-relaxed"
             >
               {subtitle}
             </motion.p>

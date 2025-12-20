@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
+/* Trigger reload for AI Auto-fill - v2 */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -126,6 +127,36 @@
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-family: 'Inter', system-ui, sans-serif;
+    /* Global fluid typography attempt */
+    font-size: 16px;
+  }
+
+  @media (max-width: 640px) {
+    body {
+      font-size: 15px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    body {
+      font-size: 14px;
+    }
+  }
+}
+
+@layer utilities {
+  .text-fluid-h1 {
+    font-size: clamp(1.875rem, 5vw + 1rem, 3.75rem);
+    line-height: 1.1;
+  }
+
+  .text-fluid-h2 {
+    font-size: clamp(1.5rem, 4vw + 0.5rem, 3rem);
+    line-height: 1.2;
+  }
+
+  .text-mobile-sm {
+    @apply text-sm xs:text-base;
   }
 }
 
