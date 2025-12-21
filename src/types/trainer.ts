@@ -7,24 +7,24 @@ export interface NonTechnicalFormData {
   email: string;
   city: string;
   state: string;
-  
+
   // Step 2: Training Areas
   trainingAreas: string[];
-  
+
   // Step 3: Experience & Travel
   experienceLevel: string;
   travelWillingness: string;
-  
+
   // Step 4: Language & Availability
   languages: string[];
   availability: string;
   trainingMode: string;
-  
+
   // Step 5: Fees & Documents
   dailyFee: string;
   resume: File | null;
   profilePhoto: File | null;
-  
+
   // Step 6: Final Details
   shortBio: string;
   demoSessionLink: string;
@@ -40,23 +40,23 @@ export interface TechnicalFormData {
   state: string;
   travelWillingness: string;
   feedbackScore: number;
-  
+
   // Step 2: Technical Skills
   technicalSkills: string[];
-  
+
   // Step 3: Domain Expertise
   domainExpertise: string[];
-  
+
   // Step 4: Experience
   trainingExperience: string;
   hasIndustryExperience: boolean;
   industryDetails: string;
-  
+
   // Step 5: Languages, Fees, Availability
   languages: string[];
   dailyFee: string;
   availability: string;
-  
+
   // Step 6: Documents & Consent
   resume: File | null;
   profilePhoto: File | null;
@@ -93,6 +93,16 @@ export const LANGUAGES = [
   { id: 'english', label: 'English' },
   { id: 'hindi', label: 'Hindi' },
   { id: 'marathi', label: 'Marathi' },
+  { id: 'gujarati', label: 'Gujarati' },
+  { id: 'tamil', label: 'Tamil' },
+  { id: 'telugu', label: 'Telugu' },
+  { id: 'kannada', label: 'Kannada' },
+  { id: 'bengali', label: 'Bengali' },
+  { id: 'punjabi', label: 'Punjabi' },
+  { id: 'malayalam', label: 'Malayalam' },
+  { id: 'french', label: 'French' },
+  { id: 'german', label: 'German' },
+  { id: 'spanish', label: 'Spanish' },
   { id: 'other', label: 'Other' },
 ];
 

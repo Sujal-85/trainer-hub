@@ -15,8 +15,8 @@ const TrainerTypeSelector = ({ onSelect }: TrainerTypeSelectorProps) => {
       title: 'Non-Technical Trainer',
       description: 'Soft skills, communication, aptitude, personality development, career guidance, corporate training',
       cta: 'Register as Non-Technical Trainer',
-      gradient: 'from-emerald-500 to-teal-600',
-      bgGlow: 'bg-emerald-500/10',
+      color: 'text-emerald-600',
+      bgGlow: 'bg-emerald-50',
     },
     {
       type: 'technical' as const,
@@ -25,8 +25,8 @@ const TrainerTypeSelector = ({ onSelect }: TrainerTypeSelectorProps) => {
       title: 'Technical Trainer',
       description: 'Programming, engineering domains, software tools, industry & training experience',
       cta: 'Register as Technical Trainer',
-      gradient: 'from-indigo-500 to-purple-600',
-      bgGlow: 'bg-indigo-500/10',
+      color: 'text-indigo-600',
+      bgGlow: 'bg-indigo-50',
     },
   ];
 
@@ -109,7 +109,7 @@ const TrainerTypeSelector = ({ onSelect }: TrainerTypeSelectorProps) => {
                     </div>
 
                     {/* Title */}
-                    <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
+                    <h2 className={`text-xl sm:text-2xl md:text-3xl font-bold text-foreground mb-2 group-hover:${trainer.color} transition-colors`}>
                       {trainer.title}
                     </h2>
 
@@ -129,8 +129,6 @@ const TrainerTypeSelector = ({ onSelect }: TrainerTypeSelectorProps) => {
                     </div>
                   </div>
 
-                  {/* Decorative gradient line */}
-                  <div className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r ${trainer.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-b-3xl`} />
                 </div>
               </motion.button>
             </motion.div>
