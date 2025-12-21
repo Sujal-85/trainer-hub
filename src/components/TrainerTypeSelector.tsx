@@ -15,8 +15,8 @@ const TrainerTypeSelector = ({ onSelect }: TrainerTypeSelectorProps) => {
       title: 'Non-Technical Trainer',
       description: 'Soft skills, communication, aptitude, personality development, career guidance, corporate training',
       cta: 'Register as Non-Technical Trainer',
-      color: 'text-emerald-600',
-      bgGlow: 'bg-emerald-50',
+      gradient: 'from-emerald-500 to-teal-600',
+      bgGlow: 'bg-emerald-500/10',
     },
     {
       type: 'technical' as const,

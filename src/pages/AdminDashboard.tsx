@@ -81,11 +81,12 @@ const AdminDashboard = () => {
         <div className="flex h-screen bg-background overflow-hidden">
             {/* Sidebar */}
             <aside className="w-64 glass-card border-r border-border/50 hidden md:flex flex-col">
-                <div className="p-6 flex items-center gap-3">
-                    <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
-                        <LayoutDashboard className="w-6 h-6 text-primary" />
-                    </div>
-                    <span className="font-bold text-xl">Admin Hub</span>
+                <div className="p-6">
+                    <img
+                        src="/logo-trainer.png"
+                        alt="Trainer Hub Logo"
+                        className="h-10 drop-shadow-sm"
+                    />
                 </div>
 
                 <nav className="flex-1 px-4 py-6 space-y-2">
