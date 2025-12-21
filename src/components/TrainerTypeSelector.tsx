@@ -61,7 +61,7 @@ const TrainerTypeSelector = ({ onSelect }: TrainerTypeSelectorProps) => {
             transition={{ delay: 0.3 }}
             className="text-3xl xs:text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground mb-3 md:mb-4 tracking-tight"
           >
-            Become a <span className="text-primary">Trainer</span>
+            Register to <span className="text-primary">Personalised Training Network</span>
           </motion.h1>
 
           <motion.p
