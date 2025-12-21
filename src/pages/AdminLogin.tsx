@@ -45,8 +45,12 @@ const AdminLogin = () => {
                 className="w-full max-w-md relative z-10"
             >
                 <div className="glass-card p-8 md:p-10 rounded-3xl text-center">
-                    <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                        <Shield className="w-8 h-8 text-primary" />
+                    <div className="mb-6">
+                        <img
+                            src="/logo-trainer.png"
+                            alt="Trainer Hub Logo"
+                            className="h-16 mx-auto drop-shadow-sm"
+                        />
                     </div>
 
                     <h1 className="text-3xl font-bold text-foreground mb-2">Admin Portal</h1>
